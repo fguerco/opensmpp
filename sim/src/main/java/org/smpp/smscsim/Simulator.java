@@ -14,6 +14,7 @@ import java.io.*;
 
 import org.smpp.SmppObject;
 import org.smpp.debug.*;
+import org.smpp.pdu.Address;
 import org.smpp.pdu.DeliverSM;
 import org.smpp.pdu.PDUException;
 import org.smpp.pdu.WrongLengthOfStringException;
@@ -333,6 +334,11 @@ public class Simulator {
 		}
 	}
 
+	private String prompt(String text) throws IOException {
+		System.out.print(text);
+		return keyboard.readLine();
+	}
+
 	/**
 	 * Permits data to be sent to a specific client.
 	 * With the id of the client set by the user, the method <code>sendMessage</code> 
@@ -357,10 +363,14 @@ public class Simulator {
 					proc = (SimulatorPDUProcessor) processors.get(i);
 					if (proc.getSystemId().equals(client)) {
 						if (proc.isActive()) {
-							System.out.print("Type the message> ");
-							String message = keyboard.readLine();
+
+							String sourceAddr = prompt("Type the source address> ");
+							String destAddr = prompt("Type the destination address> ");
+							String message = prompt("Type the message> ");
 							DeliverSM request = new DeliverSM();
 							try {
+								request.setSourceAddr(sourceAddr);
+								request.setDestAddr(destAddr);
 								request.setShortMessage(message);
 								proc.serverRequest(request);
 								System.out.println("Message sent.");
