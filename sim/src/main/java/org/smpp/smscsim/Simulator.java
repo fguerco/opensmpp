@@ -10,17 +10,20 @@
  */
 package org.smpp.smscsim;
 
-import java.io.*;
-
 import org.smpp.SmppObject;
-import org.smpp.debug.*;
-import org.smpp.pdu.Address;
+import org.smpp.debug.Debug;
+import org.smpp.debug.Event;
+import org.smpp.debug.FileDebug;
+import org.smpp.debug.FileEvent;
 import org.smpp.pdu.DeliverSM;
 import org.smpp.pdu.PDUException;
 import org.smpp.pdu.WrongLengthOfStringException;
-import org.smpp.smscsim.SimulatorPDUProcessor;
-import org.smpp.smscsim.SimulatorPDUProcessorFactory;
 import org.smpp.smscsim.util.Table;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * Class <code>Simulator</code> is an application class behaving as a real
@@ -339,6 +342,11 @@ public class Simulator {
 		return keyboard.readLine();
 	}
 
+	private String getParameter(String key, String promptText) throws IOException {
+		String defaultValue = System.getenv(key);
+		return (defaultValue == null) ? prompt(promptText) : defaultValue;
+	}
+
 	/**
 	 * Permits data to be sent to a specific client.
 	 * With the id of the client set by the user, the method <code>sendMessage</code> 
@@ -364,8 +372,8 @@ public class Simulator {
 					if (proc.getSystemId().equals(client)) {
 						if (proc.isActive()) {
 
-							String sourceAddr = prompt("Type the source address> ");
-							String destAddr = prompt("Type the destination address> ");
+							String sourceAddr = getParameter("SOURCE_ADDRESS", "Type the source address> ");
+							String destAddr = getParameter("DEST_ADDRESS", "Type the destination address> ");
 							String message = prompt("Type the message> ");
 							DeliverSM request = new DeliverSM();
 							try {
